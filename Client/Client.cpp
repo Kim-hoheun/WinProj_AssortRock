@@ -1,8 +1,10 @@
 ﻿// Client.cpp : Defines the entry point for the application.
 //
-
+#include "pch.h"
 #include "framework.h"
 #include "Client.h"
+
+#include "Core.h"
 
 #define MAX_LOADSTRING 100
 
@@ -10,6 +12,7 @@
 HINSTANCE hInst;                                // current instance
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
+HWND g_hwnd;
 
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -22,6 +25,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_ LPWSTR    lpCmdLine,
                      _In_ int       nCmdShow)
 {
+
+    // 메모리 릭(누수) 체크
+    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+    //_CrtSetBreakAlloc(207); //-> 썻으면 잘 지우자 안지우면 중단걸린다
+
+    
+
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
@@ -39,21 +49,49 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     {
         return FALSE;
     }
+
+    //Core 초기화
+    //GetInst로 싱글톤 객체를 가져와 초기화 함수 실행
+    // 초기화 함수는 실패시 E_FALSE를 가져와야 하지만 실패할 일이 없어서 구현은 안함
+    // 무조건 S_OK만을 반환
+    if (FAILED(Core::GetInst()->init(g_hwnd,POINT{1280, 768}))) // 윈도우창 핸들값과 윈도우창 크기값을 설정해줌
+    {
+        MessageBox(nullptr, L"Core 객체 초기화 실패", L"ERROR", MB_OK);
+        return FALSE;
+    }
+
+
+
+
     // 단축키 테이블 정보를 로딩 (Accelerator파일에 있는 테이블 정보를 가져옴)
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CLIENT));
-
+    
     MSG msg;
 
     // Main message loop:
     //메세제큐에서 메세지 확인 될 때까지 GetMessage는 대기 중이다
     // msg.message == WM_QUIT을 반환하면 GetMessage는 false를 반환 -> while문이 종료 -> 프로그램 종료 
-    while (GetMessage(&msg, nullptr, 0, 0))
+    
+    // PeekMessage
+    // 메세지 유무와 관계없이 반환
+    // 메세지큐에서 메세지를 확인한 경우 true, 없는 경우 false를 반환한다.
+    while (true)
     {
-        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
+        if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+
+            if (WM_QUIT == msg.message)
+                break;
+            if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+            {
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+            }
         }
+        else { 
+            // 메세지가 없는 동안 호출
+            Core::GetInst()->progress();
+        }
+        
     }
 
     return (int) msg.wParam;
@@ -101,16 +139,16 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // Store instance handle in our global variable
 
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+   g_hwnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
       CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
-   if (!hWnd)
+   if (!g_hwnd)
    {
       return FALSE;
    }
 
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
+   ShowWindow(g_hwnd, nCmdShow);
+   UpdateWindow(g_hwnd);
 
    return TRUE;
 }
@@ -149,6 +187,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
+            //HDC는 DECLARE_HANDLE라는 매크로를 통해
+            /*struct _HDC
+            {
+                int a;
+            }typedef HDC;*/
+            // 로 바뀌게 된다. 결국 핸들 값을 받는 정수변수를 가진 구조체 인것
             HDC hdc = BeginPaint(hWnd, &ps);
             // TODO: Add any drawing code that uses hdc here...
             EndPaint(hWnd, &ps);
