@@ -2,6 +2,9 @@
 #include "CScene.h"
 #include "CObject.h"
 
+
+
+
 CScene::CScene()
 {
 }
@@ -24,7 +27,23 @@ void CScene::update()
 	{
 		for (size_t j = 0; j < m_arrObj[i].size(); ++j)
 		{
-			m_arrObj[i][j]->update();
+			if (!m_arrObj[i][j]->IsDead())
+			{
+				m_arrObj[i][j]->update();
+			}
+		}
+	}
+}
+
+void CScene::finalupdate()
+{
+	for (UINT i = 0; i < (UINT)GROUP_TYPE::END; ++i)
+	{
+		for (size_t j = 0; j < m_arrObj[i].size(); ++j)
+		{
+			// update에서는 삭제예정 오브젝트는 업데이트 해주지 않지만
+			// finalupdate에서는 충돌을 마무리 하기 위해서 finalupdate를 해줘야 한다
+			m_arrObj[i][j]->finalupdate();
 		}
 	}
 }
@@ -33,9 +52,33 @@ void CScene::render(HDC _dc)
 {
 	for (UINT i = 0; i < (UINT)GROUP_TYPE::END; ++i)
 	{
-		for (size_t j = 0; j < m_arrObj[i].size(); ++j)
+		// for(초기식, 조건식, 변화식) 인데 세개다 생략이 가능함 ㄹㅇㅋㅋ..
+		vector<CObject*>::iterator iter = m_arrObj[i].begin();
+		for (; iter != m_arrObj[i].end(); )
 		{
-			m_arrObj[i][j]->render(_dc);
+			if (!(*iter)->IsDead())
+			{
+				(*iter)->render(_dc);
+				++iter;
+			}
+			else
+			{
+				iter = m_arrObj[i].erase(iter);
+			}
 		}
+	}
+}
+
+void CScene::DeleteGroup(GROUP_TYPE _eTarget)
+{
+	//Safe_Delete_Vec(m_arrObj[(UINT)_eTarget]); -> 로 해도 컴파일러가 아라서 처리해주나 밑에 처럼 쓰는게 정석이다
+	Safe_Delete_Vec<CObject*>(m_arrObj[(UINT)_eTarget]); 
+}
+
+void CScene::DeleteAll()
+{
+	for (UINT i = 0; i < (UINT)GROUP_TYPE::END; ++i)
+	{
+		DeleteGroup((GROUP_TYPE)i);
 	}
 }

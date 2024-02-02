@@ -21,6 +21,12 @@ public:
 	virtual void render(HDC _dc);
 
 public:
+	virtual void OnCollisionEnter(CColider* _pOther);
+
+	CLONE(CMissile);
+	 
+
+public:
 	CMissile();
 	~CMissile();
 	

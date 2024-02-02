@@ -34,6 +34,12 @@ void CTimeMgr::update()
 	// 이전카운트 값을 현재값으로 갱신(다음번에 계산을 위해서)
 	m_llPreCount = m_llCurCount;
 	
+#ifdef _DEBUG
+	if (m_dDT > (1. / 60))
+		m_dDT = (1. / 60); 
+
+#endif
+
 	
 }
 

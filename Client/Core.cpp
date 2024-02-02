@@ -4,8 +4,9 @@
 #include "CKeyMgr.h"
 #include "CSceneMgr.h"
 #include "CPathMgr.h"
-
-
+#include "CCollisionMgr.h"
+#include "CEventMgr.h"
+#include "CCamera.h"
 
 Core::Core()
 	:m_hwnd(0)
@@ -13,6 +14,8 @@ Core::Core()
 	, m_hDC(0)
 	, m_hBit(0)
 	, m_memDC(0)
+	, m_arrBrush{}
+	, m_arrPen{}
 {
 
 }
@@ -23,6 +26,11 @@ Core::~Core()
 
 	DeleteDC(m_memDC);
 	DeleteObject(m_hBit);
+
+	for (int i = 0; i < (UINT)PEN_TYPE::END; ++i)
+	{
+		DeleteObject(m_arrPen[i]);
+	}
 }
 
 int Core::init(HWND _hwnd, POINT _ptResolution)
@@ -51,6 +59,11 @@ int Core::init(HWND _hwnd, POINT _ptResolution)
 	HBITMAP hOldBit = (HBITMAP)SelectObject(m_memDC, m_hBit);
 	DeleteObject(hOldBit);
 
+
+	// 자주 사용 할 팬 및 브러쉬 생성
+	CreateBrushPen();
+
+
 	// Manager 초기화
 	CPathMgr::GetInst()->init();
 	CTimeMgr::GetInst()->init();
@@ -64,12 +77,22 @@ int Core::init(HWND _hwnd, POINT _ptResolution)
 }
 
 void Core::progress()
-{
+{	//================
 	// Manager Updata
+	//================
+
 	CTimeMgr::GetInst()->update();
 	CKeyMgr::GetInst()->update();
+	CCamera::GetInst()->update();
+
+	//============
+	// Scene Update
+	//============
+
 	CSceneMgr::GetInst()->update();
 
+	// 충돌체크
+	CCollisionMgr::GetInst()->update();
 	
 	//============
 	// Rendering
@@ -83,18 +106,27 @@ void Core::progress()
 		m_memDC, 0, 0, SRCCOPY);
 
 	CTimeMgr::GetInst()->render();
+
+	//================
+	// 이벤트 지연처리
+	//================
+	CEventMgr::GetInst()->update();
+
+
 }
 
-void Core::update()
+void Core::CreateBrushPen()
 {
-	/*Vec2 vPos = g_obj.GetPos();
-	if (CKeyMgr::GetInst()->GetKeyState(KEY::LEFT) == KEY_STATE::HOLD) {
-		vPos.x -= 200.f * CTimeMgr::GetInst( )->GetfDT();
-	}
-	if (CKeyMgr::GetInst()->GetKeyState(KEY::RIGHT) == KEY_STATE::HOLD) {
-		vPos.x += 200.f * CTimeMgr::GetInst()->GetfDT();
-	}
-	g_obj.SetPos(vPos); */
-} 
+	// 사실 이미 자체적으로 윈도우에서 만들어논걸 우리가 가져다 쓰는 것임
+	// 윈도우에서 만들어 놓은 것으로 따로 우리가 삭제하지 않아도 됩니다.
+	// hollow brush
+	m_arrBrush[(UINT)BRUSH_TYPE::HOLLOW] = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
+
+	// red, blue, green pen / pen들은 이미 만들어져있지 않음 내가 아라서 해제해줘야함
+	m_arrPen[(UINT)PEN_TYPE::RED] = CreatePen(PS_SOLID, 1, RGB(255, 0, 0));
+	m_arrPen[(UINT)PEN_TYPE::GREEN] = CreatePen(PS_SOLID, 1, RGB(0, 255, 0));
+	m_arrPen[(UINT)PEN_TYPE::BLUE] = CreatePen(PS_SOLID, 1, RGB( 0, 0, 255));
+}
+
 
 

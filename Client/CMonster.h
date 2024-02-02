@@ -8,15 +8,24 @@ private:
     float     m_fSpeed;
     float     m_fMaxDistance;
     int       m_iDir; //1, 0-1
+    int       m_iHP;
 
 public:
     float GetSpeed() { return m_fSpeed; }
-    void SetSpeed(float _f) { m_fSpeed = _f; }
-    void SetMoveDistance(float _f) { m_fMaxDistance = _f; }
-    void SetCenterPos(Vec2 _vPos) { m_vCenterPos = _vPos; }
+    void  SetSpeed(float _f) { m_fSpeed = _f; }
+    void  SetMoveDistance(float _f) { m_fMaxDistance = _f; }
+    void  SetCenterPos(Vec2 _vPos) { m_vCenterPos = _vPos; }
+
+
+public:
+
+    virtual void OnCollisionEnter(CColider* _pOther);
 
 public:
     virtual void update();
+
+    CLONE(CMonster);
+    
 
 public:
     CMonster();
