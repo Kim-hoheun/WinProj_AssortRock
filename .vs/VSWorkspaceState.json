@@ -1,7 +1,8 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\Client"
   ],
-  "SelectedNode": "\\WinProj_AssortRock.sln",
+  "SelectedNode": "\\Client\\CAnimation.cpp",
   "PreviewInSolutionExplorer": false
 }

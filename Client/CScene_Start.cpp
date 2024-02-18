@@ -75,13 +75,23 @@ void CScene_Start::Enter()
 	}
 	// 몬스터 배치--------------------------------- 
 
+	//타일 로딩
+	//LoadTile(L"Tile\\Start.tile");
+
+
 	// 충돌 지정
 	// Player 그릅과 Moster 그룹 간의 충돌체크
 	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::PLAYER, GROUP_TYPE::MONSTER);
 	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::MONSTER, GROUP_TYPE::PROJ_PLAYER);
 
 	//Vec2 vResolution = Core::GetInst()->GetResolution();
+	
+	// Camera Lock 지원
 	CCamera::GetInst()->SetLookAt(vResolution/ 2.f);
+
+	// Camera 효과 지원
+	CCamera::GetInst()->FadeOut(1.f);
+	CCamera::GetInst()->FadeIn(1.f);
 } 
 
 void CScene_Start::Exit()

@@ -1,5 +1,7 @@
+#pragma once
 #include "pch.h"
 #include "Core.h"
+
 #include "CTimeMgr.h"
 #include "CKeyMgr.h"
 #include "CSceneMgr.h"
@@ -7,13 +9,14 @@
 #include "CCollisionMgr.h"
 #include "CEventMgr.h"
 #include "CCamera.h"
+#include "CUIMgr.h"
+#include "CTexture.h"
+#include "CResMgr.h"
 
 Core::Core()
 	:m_hwnd(0)
 	, m_ptResolution{}
 	, m_hDC(0)
-	, m_hBit(0)
-	, m_memDC(0)
 	, m_arrBrush{}
 	, m_arrPen{}
 {
@@ -24,8 +27,6 @@ Core::~Core()
 {
 	ReleaseDC(m_hwnd, m_hDC); // DC커널 오브젝트를 운영체제가 관리하므로 해제요청을 해야함
 
-	DeleteDC(m_memDC);
-	DeleteObject(m_hBit);
 
 	for (int i = 0; i < (UINT)PEN_TYPE::END; ++i)
 	{
@@ -49,15 +50,8 @@ int Core::init(HWND _hwnd, POINT _ptResolution)
 	// DC 생성(그림그리기 위해서)
 	m_hDC = GetDC(m_hwnd);
 
-	// 이중 버퍼링 용도의 비트맵과 DF를 만든다.
-	// hdc를 넣어주는 이유는 이 hdc의 비트맵에 옮겨 그릴거라서 호환성을 위해 넣어줌 (내부동작 몰라도됨)
-	// 커널오브젝트인 비트맵 핸들을 넘겨줌
-	m_hBit = CreateCompatibleBitmap(m_hDC, m_ptResolution.x, m_ptResolution.y);
-	m_memDC = CreateCompatibleDC(m_hDC);
-	
-	// DC를 처음에 만들 때 1픽셀 짜리 비트맵을 가춰서 나옴 그래서 delete해서 지워버림
-	HBITMAP hOldBit = (HBITMAP)SelectObject(m_memDC, m_hBit);
-	DeleteObject(hOldBit);
+	// 이중 버퍼링 용도의 텍스쳐 한장을 만든다
+	m_pMemTex = CResMgr::GetInst()->CreateTexture(L"BackBuffer",(UINT)m_ptResolution.x, (UINT)m_ptResolution.y);
 
 
 	// 자주 사용 할 팬 및 브러쉬 생성
@@ -68,7 +62,9 @@ int Core::init(HWND _hwnd, POINT _ptResolution)
 	CPathMgr::GetInst()->init();
 	CTimeMgr::GetInst()->init();
 	CKeyMgr::GetInst()->init(); 
+	CCamera::GetInst()->init();
 	CSceneMgr::GetInst()->init();
+	
 
 	
 
@@ -86,7 +82,7 @@ void Core::progress()
 	CCamera::GetInst()->update();
 
 	//============
-	// Scene Update
+	// Scene Update -> update 다하고 finalUpdate도 진행
 	//============
 
 	CSceneMgr::GetInst()->update();
@@ -94,18 +90,33 @@ void Core::progress()
 	// 충돌체크
 	CCollisionMgr::GetInst()->update();
 	
+	// UI이벤트 체크
+	CUIMgr::GetInst()->update();
+
 	//============
 	// Rendering
 	//============
-	Rectangle(m_memDC, -1, -1, m_ptResolution.x + 1, m_ptResolution.y + 1);
+	// 화면 클리어 용 Rectangle
+	Rectangle(m_pMemTex->GetDc(), -1, -1, m_ptResolution.x + 1, m_ptResolution.y + 1);
 	
-	CSceneMgr::GetInst()->render(m_memDC);
+	// back DC에 render를 함-------------------------------
+	CSceneMgr::GetInst()->render(m_pMemTex->GetDc()); // 오브젝트들 랜더
+	CCamera::GetInst()->render(m_pMemTex->GetDc()); // 카메라 효과 랜더
+	// ---------------------------------------------------
 
+	
+	
+	// main DC에 Back DC를 그려준다--------------------------------------------
 	//전부 CPU로 처리 중임, 반복적이고 단순한 작업을, windowAPI는 CPU를 이용해서 처리해주는 함수기 때문
 	BitBlt(m_hDC, 0, 0, m_ptResolution.x, m_ptResolution.y,
-		m_memDC, 0, 0, SRCCOPY);
+		m_pMemTex->GetDc(), 0, 0, SRCCOPY);
+	// -----------------------------------------------------------------------
 
+	//============
+	// 타임 매니저 랜더 / window 상단에 프레임수 표시
+	//============
 	CTimeMgr::GetInst()->render();
+
 
 	//================
 	// 이벤트 지연처리

@@ -39,3 +39,19 @@ void CTexture::Load(const wstring& _strFilePath)
 
 	
 }
+
+void CTexture::Create(UINT _iWidth, UINT _iHeigth)
+{
+	HDC maindc = Core::GetInst()->GetMainDC();
+	
+	m_hBit = CreateCompatibleBitmap(maindc, _iWidth, _iHeigth);
+	m_dc = CreateCompatibleDC(maindc);
+
+	// DC를 처음에 만들 때 1픽셀 짜리 비트맵을 가춰서 나옴 그래서 delete해서 지워버림
+	HBITMAP hOldBit = (HBITMAP)SelectObject(m_dc, m_hBit);
+	DeleteObject(hOldBit);
+
+	// 비트맵 정보
+	GetObject(m_hBit, sizeof(BITMAP), &m_bitInfo);
+
+}

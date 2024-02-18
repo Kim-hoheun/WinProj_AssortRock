@@ -30,3 +30,15 @@ void CPathMgr::init()
 	wcscat_s(m_szContentPath, 255, L"\\bin\\content\\");
 	//SetWindowText(Core::GetInst()->GetMainHwnd(), m_szContentPath);
 }
+
+wstring CPathMgr::GetRelativePath(const wchar_t* _filePath)
+{
+	wstring strFilePath = _filePath;
+
+	size_t iAbsLen = wcslen(m_szContentPath);
+	size_t iFileLen = strFilePath.length();
+
+	wstring strRelativePath = strFilePath.substr(iAbsLen, iFileLen - iAbsLen);
+
+	return strRelativePath;
+}

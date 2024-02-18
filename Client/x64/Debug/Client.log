@@ -1,2 +1,8 @@
-﻿  CPlayer.cpp
-  Client.vcxproj -> C:\Users\rlazh\OneDrive\바탕 화면\취업자료\WinProj\WinProj_AssortRock\Output\bin_debug\Client.exe
+﻿  unity_OZY5YHCQXWNG8H51.cpp
+C:\Users\rlazh\OneDrive\Desktop\WinProj\WinProj_AssortRock\Client\CObject.cpp(75,23): warning C4244: '인수': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\rlazh\OneDrive\Desktop\WinProj\WinProj_AssortRock\Client\CObject.cpp(74,23): warning C4244: '인수': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\rlazh\OneDrive\Desktop\WinProj\WinProj_AssortRock\Client\CObject.cpp(73,23): warning C4244: '인수': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\rlazh\OneDrive\Desktop\WinProj\WinProj_AssortRock\Client\CObject.cpp(72,23): warning C4244: '인수': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\rlazh\OneDrive\Desktop\WinProj\WinProj_AssortRock\Client\CPlayer.cpp(81,13): warning C4244: '초기화 중': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\rlazh\OneDrive\Desktop\WinProj\WinProj_AssortRock\Client\CPlayer.cpp(82,14): warning C4244: '초기화 중': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  Client.vcxproj -> C:\Users\rlazh\OneDrive\Desktop\WinProj\WinProj_AssortRock\Output\bin_debug\Client.exe

@@ -86,7 +86,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
             }
-        }
+        } 
         else { 
             // 메세지가 없는 동안 호출
             Core::GetInst()->progress();
@@ -163,6 +163,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //  WM_DESTROY  - post a quit message and return
 //
 //
+INT_PTR CALLBACK TileCountProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
@@ -175,6 +178,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             {
             case IDM_ABOUT:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+                break;
+            case ID_MENU_TILE:
+                // DialogBox는 EndDialog의 두번째 인자값을 리턴하는 함수
+                // INT_PTR의 리턴값으로 확인버튼이 눌려서 Dialog가 끝난건지 취소로 끝난건지 알수 있음
+                // 가능하단 것만 알고 굳이 여기서는 처리 안함
+            {
+                INT_PTR iRet = DialogBox(hInst, MAKEINTRESOURCE(IDD_Tile_Count), hWnd, TileCountProc);
+            }
+                /*if (iRet == IDOK)
+                {
+
+                }*/
                 break;
             case IDM_EXIT:
                 DestroyWindow(hWnd);

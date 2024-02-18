@@ -28,7 +28,7 @@ CObject::CObject(const CObject& _origin)
 		m_pColider = new CColider(*_origin.m_pColider); //콜라이더를 복사생성자로 생성하고
 		m_pColider->m_pOwner = this;                    // 새로 생성한 콜라이더를 연결
 	}
-	if (_origin.m_pColider)
+	if (_origin.m_pAnimator)
 	{
 		m_pAnimator = new CAnimator(*_origin.m_pAnimator); //콜라이더를 복사생성자로 생성하고
 		m_pAnimator->m_pOwner = this;                    // 새로 생성한 콜라이더를 연결
@@ -56,6 +56,11 @@ void CObject::finalupdate()
 	if (m_pColider)
 	{
 		m_pColider->finalupdate();
+	}
+	
+	if (m_pAnimator)
+	{
+		m_pAnimator->finalupdate();
 	}
 }
 

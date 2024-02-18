@@ -1,3 +1,4 @@
+#pragma once
 #include "pch.h"
 #include "CPlayer.h"
 #include "CKeyMgr.h"
@@ -71,6 +72,30 @@ void CPlayer::update()
 
 void CPlayer::render(HDC _dc)
 {
+	
+	CTexture* pTex = CResMgr::GetInst()->LoadTexture(L"Plane", L"texture\\Player_final_2.bmp");
+
+	Vec2 vPos = GetPos();
+	vPos = CCamera::GetInst()->GetRenderPos(vPos);
+	
+	int iWidth = (float)pTex->Width();
+	int iHeight = (float)pTex->Height();
+
+	BLENDFUNCTION bf = {};
+
+	bf.BlendOp = AC_SRC_OVER;
+	bf.BlendFlags = 0;
+	bf.AlphaFormat = AC_SRC_ALPHA;
+	bf.SourceConstantAlpha = 127; // 전역알파, 전체적으로 알파값을 한번더 적용한다
+
+	AlphaBlend(_dc
+		, int(vPos.x - iWidth / 2.f)
+		, int(vPos.y - iHeight / 2.f)
+		, int(iWidth) , int(iHeight)
+		, pTex->GetDc()
+		, 0, 0, int(iWidth), int(iHeight)
+		, bf);
+
 	//int iWidth = (int)m_pTex->Width(); // 음수가 나올 수 있게 int로 바꿔줌
 	//int iHeight = (int)m_pTex->Height();// 여기도 마찬가지, 픽셀값이라 반드시 양수지만, 이걸 가지고 계산할 때 좌상단 값이 음수가 나올 수있어야해서 그럼
 	//
@@ -93,7 +118,9 @@ void CPlayer::render(HDC _dc)
 	    , RGB(255, 0, 255) );*/
 
 	// 컴포넌트(충돌체, etc...) 가 있는 경우 랜더
-	component_render(_dc);
+	
+	
+	//component_render(_dc);
 }
 
 void CPlayer::CreateMissile()

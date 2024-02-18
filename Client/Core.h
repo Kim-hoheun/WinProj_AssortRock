@@ -1,4 +1,5 @@
 #pragma once
+class CTexture;
 
 class Core { 
 	SINGLE(Core)
@@ -7,8 +8,9 @@ private:
 	POINT m_ptResolution; // 메인 윈도우 해상도
 	HDC m_hDC;			  // 메인 윈도우에 Draw 할 DC1
 
-	HBITMAP m_hBit;		  // 더블버퍼링에 필요한 비트맵
-	HDC m_memDC;          // 더블버퍼링에 필요한 DC2
+	CTexture* m_pMemTex;  // 백버퍼 텍스쳐
+	//HBITMAP m_hBit;		  // 더블버퍼링에 필요한 비트맵
+	//HDC m_memDC;          // 더블버퍼링에 필요한 DC2
 
 	// 자주 사용하는 GDI Object
 	HBRUSH m_arrBrush[(UINT)BRUSH_TYPE::END];

@@ -11,6 +11,8 @@ class CResMgr
 
 public:
 	CTexture* LoadTexture(const wstring& _strKey, const wstring& _strRelativePath);
+	CTexture* CreateTexture(const wstring& _strKey, UINT iWidth, UINT iHieght);
+
 	CTexture* FindTexture(const wstring& _strKey);
 };
 

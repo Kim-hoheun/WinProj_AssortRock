@@ -24,14 +24,19 @@
 
 #define PI 3.1415926535f
 
+#define TILE_SIZE 64
+
 enum class GROUP_TYPE // enum값은 4바트이 정수값임
 {
 	DEFAULT,
-	PLAYER,
+	TILE,
 	MONSTER,
+	PLAYER,
 	PROJ_PLAYER,
 	PROJ_MONSTER, // PROJ-> 투사체
 
+
+	UI = 31,
 	END = 32,
 };
 

@@ -1,6 +1,6 @@
 #pragma once
+#include "global.h"
 #include "CCamera.h" //원래 헤더에서 헤더를 참조를 잘안하려하지만 모든 오브젝트가 카메라를 써야하기 때문에 참조
-
 class CColider;
 class CAnimator;
 
@@ -50,11 +50,13 @@ private:
 
 public:
 	virtual void update() = 0;
-	virtual void finalupdate() final; 
+	virtual void finalupdate(); 
 	virtual void render(HDC _dc);
 	void component_render(HDC _dc);
 
 	virtual CObject* Clone() = 0; // 나 자신의 복사버전들 돌려주는 역할
+								  // Object의 복사생성자를 호출해서 새로하나 만들고 new의 동적할당으로
+								  // 새로만든 객체의 포인터를 담음
 
 public:
 	CObject();
